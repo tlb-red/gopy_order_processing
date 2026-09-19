@@ -1,0 +1,19 @@
+name: Order Processing App
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+    - name: Use Go
+      uses: actions/setup-go@v7
+      with:
+        go-version: '1.26'
+    - run: go run main.go
