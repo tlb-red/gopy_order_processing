@@ -22,7 +22,6 @@ type OrderRepository struct {
 }
 
 func main() {
-
 }
 
 func GetOrderHandler(svc *OrderService) http.HandlerFunc {
@@ -64,7 +63,7 @@ func (r *OrderRepository) GetOrder(ctx context.Context, id string) (*Order, erro
 }
 
 func writeJSON(w http.ResponseWriter, status int, value any) {
-	w.Header().Set("Content-Type", "application-json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
 	if err := json.NewEncoder(w).Encode(value); err != nil {
