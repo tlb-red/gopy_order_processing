@@ -1,0 +1,119 @@
+openapi: 3.0.4
+info:
+  title: Claim Processor API
+  description: Processes claims for clients.
+  version: 0.1.9
+
+servers:
+  - url: https://localhost:{port}/v1
+    description: Mock prod environment
+    variables:
+      port:
+        default: "5000"
+
+tags:
+  - name: Claims
+    description: Operations for creating, reading, and updating claims.
+
+paths:
+  /claims:
+    get:
+      operationId: listClaims
+      tags: [Claims]
+      summary: Returns a list of claims.
+      responses:
+        "200":
+          description: An array of claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+
+    post:
+      operationId: createClaim
+      tags: [Claims]
+      summary: Creates claims.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimRequest"
+      responses:
+        "201": 
+          description: Claim created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{claimId}:
+    parameters:
+      - in: path
+        name: claimId
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: updateClaim
+      summary: Updates a claim.
+      tags: [Claims]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimRequest"
+      responses:
+        "200":
+          description: Claim updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+
+    get:
+      operationId: getClaim
+      summary: Returns a claim.
+      tags: [Claims]
+      responses:
+        "200":
+          description: A claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+components:
+  schemas:
+    ClaimRequest:
+      type: object
+      required: [clientId, status, amount]
+      properties:
+        clientId:
+          type: string
+        status:
+          type: string
+        amount:
+          type: number
+          format: double
+
+    Claim:
+      type: object
+      properties:
+        id:
+          type: string
+        clientId:
+          type: string
+        status:
+          type: string
+        amount:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
+
