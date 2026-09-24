@@ -1,4 +1,4 @@
-package models
+package claim_models
 
 import "time"
 

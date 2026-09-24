@@ -1,4 +1,4 @@
-package claimCfg
+package claim_config
 
 import (
 	"errors"

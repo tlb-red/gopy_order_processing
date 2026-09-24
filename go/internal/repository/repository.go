@@ -2,24 +2,26 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	claimCfg "tlb-red.com/gopy-order-processing/internal/config"
+	claim_config "tlb-red.com/gopy-order-processing/internal/config"
+	claim_models "tlb-red.com/gopy-order-processing/internal/models"
 )
 
-type claimQueue interface {
+type ClaimQueue interface {
 	claimQueue(ctx context.Context, claim SQSClaimQueue)
 }
 
 type SQSClaimQueue struct {
 	client   *sqs.Client
-	queryURL string
+	queueURL string
 }
 
-func newSQSClaimQueue(cfg claimCfg.Config) (SQSClaimQueue, error) {
+func NewSQSClaimQueue(cfg claim_config.Config) (SQSClaimQueue, error) {
 	awsConfig, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(cfg.AWSRegion),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.AWSAccessKey, cfg.AWSSecretKey, "test")),
@@ -30,13 +32,23 @@ func newSQSClaimQueue(cfg claimCfg.Config) (SQSClaimQueue, error) {
 
 	query := SQSClaimQueue{
 		client:   sqs.NewFromConfig(awsConfig),
-		queryURL: cfg.SQSQueueURL,
+		queueURL: cfg.SQSQueueURL,
 	}
 
 	return query, nil
 }
 
-func (q SQSClaimQueue) Publish(context.Context, claimQueue) error {
-	err := errors.New("TODO")
+func (q SQSClaimQueue) Publish(ctx context.Context, claim claim_models.Claim) error {
+	body, err := json.Marshal(claim)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = q.client.SendMessage(ctx, &sqs.SendMessageInput{
+		QueueUrl:    &q.queueURL,
+		MessageBody: aws.String(string(body)),
+	})
+
 	return err
 }
